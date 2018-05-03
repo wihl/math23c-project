@@ -9,9 +9,15 @@ by Patrick Watts and David Wihl
 
 ## Data Sources
 
-`crypto.csv` - downloaded from Kaggle, specifically [https://www.kaggle.com/jessevent/all-crypto-currencies/data](https://www.kaggle.com/jessevent/all-crypto-currencies/data)
+Downloaded from Kaggle, specifically [https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory/data](https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory/data)
 
 Place the source CSV file into a subdirectory called `data/`
+
+
+* `bitcoin_price.csv` - Bitcoin (BTC) from April 2013 until Feb 2018 (1761 rows)
+* `ethereum_price.csv` - Ethereum (ETH) from Aug 2015 until Feb 2018 (930 rows)
+* `monero_price.csv` - Monero (XMR) from May 2014 until Feb 2018 (1372 rows)
+* `ripple_price.csv` - Ripple  from Aug 2013 until Feb 2018 (1663 rows)
 
 
 ## Contents of this Repository

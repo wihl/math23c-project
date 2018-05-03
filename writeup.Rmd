@@ -20,17 +20,39 @@ be used to model the market dynamics?
 ## Data Source
 
 We obtained a history cryptocurrency price data from 
-[https://www.kaggle.com/jessevent/all-crypto-currencies](https://www.kaggle.com/jessevent/all-crypto-currencies)
-
-This 65 mb file contains open / high / low / close (OHLC) data for 13 different currencies from 2013 
-through Feb 22, 2018 for a total of 702,166 observations.
+[https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory/data](https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory/data) for four different cryptocurrencies (BTC, ETH, XMR, XRP)
 
 (REQ: a dataframe, at least two numeric columns, at least 20 rows)
 
-## Exploratory Data Analysis
+## Data Ingestion, clean up and normalization
 ```{r}
-#df = read.csv("data/crypto.csv"); head(df)
+# Read one price history file per currency
+BTCdf = read.csv("data/bitcoin_price.csv", stringsAsFactors = F)
+ETHdf = read.csv("data/ethereum_price.csv", stringsAsFactors = F)
+XMRdf = read.csv("data/monero_price.csv", stringsAsFactors = F)
+XRPdf = read.csv("data/ripple_price.csv", stringsAsFactors = F)
 ```
+
+```{r}
+# Make dates native format
+BTCdf$Date = as.Date(BTCdf$Date,"%b %d, %Y")
+ETHdf$Date = as.Date(ETHdf$Date,"%b %d, %Y")
+XMRdf$Date = as.Date(XMRdf$Date,"%b %d, %Y")
+XRPdf$Date = as.Date(XRPdf$Date,"%b %d, %Y")
+# Ensure that all data start from the same date
+earliestCommonDate =  max(min(BTCdf$Date),
+                          min(ETHdf$Date),
+                          min(XMRdf$Date),
+                          min(XRPdf$Date))
+nrow(BTCdf);BTCdf = BTCdf[BTCdf$Date>=earliestCommonDate,];nrow(BTCdf)
+nrow(ETHdf);ETHdf = ETHdf[ETHdf$Date>=earliestCommonDate,];nrow(ETHdf)
+nrow(XMRdf);XMRdf = XMRdf[XMRdf$Date>=earliestCommonDate,];nrow(XMRdf)
+nrow(XRPdf);XRPdf = XRPdf[XRPdf$Date>=earliestCommonDate,];nrow(XRPdf)
+earliestCommonDate
+
+```
+
+## Exploratory Data Analysis
 
 ## Topic 1 - Volalitility Exploration
 

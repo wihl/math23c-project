@@ -1,0 +1,55 @@
+---
+title: "Untitled"
+author: "Patrick Watts"
+date: "April 30, 2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+cur <- read.csv("data/crypto.csv"); head(cur)
+
+index <- which(cur$Symbol=="LTC")
+ltc <- cur[index,]; head(ltc)
+var(ltc$Close) #variance of 5.495 x 10^-5
+ltc <- ltc[c(0:691), c(1:8)]
+
+index <- which(cur$Symbol=="ETH")
+eth <- cur[index,]; head(eth)
+var(eth$Close) #variance of 0.000600
+length(eth$Close)
+cov(ltc$Close, eth$Close) #covariance of 2.635 x 10^-5
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+#NOTE: Run this chunk all at once or there will be an error saying new.plot needs to be called
+ltcvalue <- ltc$Close; ethvalue <- eth$Close
+cor(ltcvalue,ethvalue)    #weak positive/no correlation cor =0.33
+plot(ethvalue,ltcvalue,pch = ".",cex = 3)  #confirmed by scatter plot
+#Find the regression line y = a + bx
+
+#Here is the formula for the slope of the line
+b <- sum( (ethvalue-mean(ethvalue))*(ltcvalue-mean(ltcvalue)) / sum((ethvalue-mean(ethvalue))^2));b 
+#Alternative - works because division by n-1 cancels out
+cov(ethvalue,ltcvalue)/var(ethvalue)
+#Here is the formula for the intercept
+a <- mean(ltcvalue) - b*mean(ethvalue);a    
+#We can add this regression line to the plot of the data
+abline(a, b, col = "red")
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
