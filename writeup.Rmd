@@ -48,8 +48,6 @@ nrow(BTCdf);BTCdf = BTCdf[BTCdf$Date>=earliestCommonDate,];nrow(BTCdf)
 nrow(ETHdf);ETHdf = ETHdf[ETHdf$Date>=earliestCommonDate,];nrow(ETHdf)
 nrow(XMRdf);XMRdf = XMRdf[XMRdf$Date>=earliestCommonDate,];nrow(XMRdf)
 nrow(XRPdf);XRPdf = XRPdf[XRPdf$Date>=earliestCommonDate,];nrow(XRPdf)
-earliestCommonDate
-
 ```
 
 ## Exploratory Data Analysis
