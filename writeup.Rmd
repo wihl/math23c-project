@@ -56,6 +56,15 @@ nrow(XRPdf);XRPdf = XRPdf[XRPdf$Date>=earliestCommonDate,];nrow(XRPdf)
 
 ## Topic 2 -
 
+## Topic 3 - Correlation between Cryptocurrencies
+```{r}
+cor(BTCdf$Close, ETHdf$Close)
+cor(BTCdf$Close, XMRdf$Close)
+cor(BTCdf$Close, XRPdf$Close)
+cor(ETHdf$Close, XMRdf$Close)
+cor(ETHdf$Close, XRPdf$Close)
+cor(XMRdf$Close, XRPdf$Close)
+```
 ## Summary of Project Requirements
 
 ### Required dataset standards
