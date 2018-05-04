@@ -16,7 +16,7 @@ Cryptocurrencies such as Bitcoin, Ethereum, etc. generated significant attention
 Cryptocurrencies have significant volalility as there is rampant speculation. 
 Given the high variance in prices, can data science methods explored in this class
 be used to model the market dynamics?
-
+  
 ## Data Source
 
 We obtained a history cryptocurrency price data from 
@@ -65,14 +65,15 @@ cor(ETHdf$Close, XMRdf$Close)
 cor(ETHdf$Close, XRPdf$Close)
 cor(XMRdf$Close, XRPdf$Close)
 
+library(ggplot2)
+
 #Largest correlation between BTC and XMR
-plot(BTCdf$Close,XMRdf$Close,pch = ".",cex = 3)
 #b is slope
 b <- cov(BTCdf$Close,XMRdf$Close)/var(BTCdf$Close)
 #a is intercept
-a <- mean(XMRdf$Close) - b*mean(BTCdf$Close);a    
-#We can add this regression line to the plot of the data
-abline(a, b, col = "red")
+a <- mean(XMRdf$Close) - b*mean(BTCdf$Close);a   
+qplot(BTCdf$Close, XMRdf$Close, size=I(3),
+   xlab="BTC Closing Price", ylab="XMR Closing Price") + geom_abline(intercept = a, slope = b, color = "red")
 ```
 ## Summary of Project Requirements
 
