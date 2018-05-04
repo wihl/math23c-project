@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(xts)
 library(quantmod)
+library(ggplot2)
 ```
 
 ## Abstract 
@@ -116,6 +117,21 @@ legend("topleft",c("BTC","ETH","XMR","XRP"),col=c("black","red","blue","green"),
        lwd=c(2,2,2,2))
 ```
 
+```{r}
+# distribution of relative price changes
+multidf$BTCdelta = c(0,diff(multidf$BTC.idx))
+multidf$ETHdelta = c(0,diff(multidf$ETH.idx))
+multidf$XMRdelta = c(0,diff(multidf$XMR.idx))
+multidf$XRPdelta = c(0,diff(multidf$XRP.idx))
+```
+
+```{r}
+ggplot(multidf, aes(x=BTCdelta)) +
+  geom_histogram(data=subset(multidf,yy='ETHdelta'),fill="red",alpha=0.2) +
+  geom_histogram(data=subset(multidf,yy='XMRdelta'),fill="blue",alpha=0.2) 
+```
+
+```
 ## Topic 1 - Volalitility Exploration
 
 ## Topic 2 -
@@ -171,3 +187,7 @@ abline(a, b, col = "red")
 ### Additional points for creativity or complexity (up to 10 points)
 
 ## References
+
+Clifford S. Ang, *Analyzing Financial Data and Implementing Financial Models Using R*, Springer, 2015
+
+Berlinger et al. *Mastering R for Quantitative Finance*, Packt Publishing, 2015
