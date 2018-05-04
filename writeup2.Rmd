@@ -106,24 +106,26 @@ close.prices = cbind(close.prices,ETHdf$Close,XMRdf$Close,XRPdf$Close)
 
 multidf = cbind(index(close.prices), data.frame(close.prices))
 names(multidf) = paste(c("Date","BTC","ETH","XMR","XRP"))
-# Merge in the non-crypto metrics
+# Merge in the non-crypto metricsmer
 multidf=merge(multidf,noncrypto,by.x="Date", by.y="DATE")
 
 multidf$BTC.idx = multidf$BTC / multidf$BTC[1]
 multidf$ETH.idx = multidf$ETH / multidf$ETH[1]
 multidf$XMR.idx = multidf$XMR / multidf$XMR[1]
 multidf$XRP.idx = multidf$XRP / multidf$XRP[1]
-
+multidf$SP500.idx = multidf$SP500 / multidf$SP500[1]
+multidf$GOLDAMGBD228NLBM.idx = multidf$GOLDAMGBD228NLBM / multidf$GOLDAMGBD228NLBM[1]
 ```
 
 ```{r}
-plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2)
+plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2,ylim=c(0,500))
 lines(x=multidf$Date,y=multidf$ETH,col="red")
 lines(x=multidf$Date,y=multidf$XMR,col="blue")
 lines(x=multidf$Date,y=multidf$XRP,col="green")
-legend("topleft",c("BTC","ETH","XMR","XRP"),col=c("black","red","blue","green"),
-       lty=c(1,1,1,1),
-       lwd=c(2,2,2,2))
+lines(x=multidf$Date,y=multidf$SP500.idx,col="purple",lwd=4)
+legend("topleft",c("BTC","ETH","XMR","XRP","SP500"),col=c("black","red","blue","green","purple"),
+       lty=c(1,1,1,1,1),
+       lwd=c(2,2,2,2,2))
 ```
 
 ```{r}
@@ -132,6 +134,7 @@ multidf$BTCdelta = c(0,diff(multidf$BTC.idx))
 multidf$ETHdelta = c(0,diff(multidf$ETH.idx))
 multidf$XMRdelta = c(0,diff(multidf$XMR.idx))
 multidf$XRPdelta = c(0,diff(multidf$XRP.idx))
+multidf$SP500delta = c(0,diff(multidf$SP500.idx))
 ```
 
 ```{r}
@@ -157,6 +160,12 @@ ggplot(multidf, aes(x=XMRdelta)) +
 ggplot(multidf, aes(x=XRPdelta)) +
   geom_histogram(aes(y=..density..),
                  binwidth=0.1,colour="black",
+                 fill="white") +
+  geom_density(alpha=0.2,fill="#FF6666")
+
+ggplot(multidf, aes(x=SP500delta)) +
+  geom_histogram(aes(y=..density..),
+                 binwidth=0.005,colour="purple",
                  fill="white") +
   geom_density(alpha=0.2,fill="#FF6666")
 
@@ -187,6 +196,13 @@ ggplot(data=barData, aes(x=Currency, y=Returns)) +
 ggplot(data=barData, aes(x=Currency, y=Volumes)) +
   geom_bar(stat="identity",fill="darkseagreen1") +
   ggtitle("Change in Daily Volume Aug 2015 - Feb 2018")
+
+```
+
+```{r}
+# Categorical Variables
+
+# Converting VIX into a categorical
 
 ```
 
