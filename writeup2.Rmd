@@ -69,6 +69,12 @@ XRPdf = XRPdf[XRPdf$Date>=earliestCommonDate,]
 
 
 ```
+
+```{r}
+# Read in traditional, noncryptocurrency data
+noncrypto = read.csv("data/noncrypto.csv",stringsAsFactors = FALSE)
+noncrypto$DATE = as.Date(noncrypto$DATE,"%Y-%m-%d")
+```
 ## Exploratory Data Analysis
 
 ```{r,message=FALSE,warning=FALSE}
@@ -100,6 +106,9 @@ close.prices = cbind(close.prices,ETHdf$Close,XMRdf$Close,XRPdf$Close)
 
 multidf = cbind(index(close.prices), data.frame(close.prices))
 names(multidf) = paste(c("Date","BTC","ETH","XMR","XRP"))
+# Merge in the non-crypto metrics
+multidf=merge(multidf,noncrypto,by.x="Date", by.y="DATE")
+
 multidf$BTC.idx = multidf$BTC / multidf$BTC[1]
 multidf$ETH.idx = multidf$ETH / multidf$ETH[1]
 multidf$XMR.idx = multidf$XMR / multidf$XMR[1]
@@ -153,8 +162,7 @@ ggplot(multidf, aes(x=XRPdelta)) +
 
 ```
 ```{r}
-# Display a bar plot
-
+# Display bar plots showing Overall Return and Change in Daily Volume 
 overallReturn = function(df){
   return ((df$Close[nrow(df)] - df$Close[1]) / df$Close[1])
 }
@@ -165,11 +173,9 @@ volIncrease = function(df){
 
 returns = c(overallReturn(BTCdf),overallReturn(ETHdf),overallReturn(XMRdf),overallReturn(XRPdf))
 volumes = c(volIncrease(BTCdf),volIncrease(ETHdf),volIncrease(XMRdf),volIncrease(XRPdf))
-close.prices = BTCdata$Close
-close.prices = cbind(close.prices,ETHdf$Close,XMRdf$Close,XRPdf$Close)
 
-barData = data.frame(Currency =c("BTC","ETH","XMR","XRP"), Returns=returns,Volumes=volumes)
- barData
+barData = data.frame(Currency=c("BTC","ETH","XMR","XRP"), Returns=returns,Volumes=volumes)
+barData
 ```
 
 ```{r}

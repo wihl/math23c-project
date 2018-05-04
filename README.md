@@ -9,6 +9,8 @@ by Patrick Watts and David Wihl
 
 ## Data Sources
 
+### Cryptocurrency
+
 Downloaded from Kaggle, specifically [https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory/data](https://www.kaggle.com/sudalairajkumar/cryptocurrencypricehistory/data)
 
 The following source CSV files are in the `data/` subdirectory:
@@ -18,6 +20,14 @@ The following source CSV files are in the `data/` subdirectory:
 * `monero_price.csv` - Monero (XMR) from May 2014 until Feb 2018 (1372 rows)
 * `ripple_price.csv` - Ripple  from Aug 2013 until Feb 2018 (1663 rows)
 
+### Noncryptocurrency
+
+For comparison against traditional markets, we used a Python notebook to download
+many other historical financial metrics.
+
+The script can be found in `DownloadOtherMetrics.ipynb`. It is intended to run once.
+
+The downloaded data can be found in `data/noncrypto.csv`
 
 ## Contents of this Repository
 
