@@ -191,7 +191,7 @@ multidf$SP500.idx = multidf$SP500 / multidf$SP500[1]
 multidf$GOLDAMGBD228NLBM.idx = multidf$GOLDAMGBD228NLBM / multidf$GOLDAMGBD228NLBM[1]
 ```
 
-The following plot scales to the most popular crytocurrency: Bitcoin (BTC)
+The following plot scales to the most popular cryptocurrency: Bitcoin (BTC)
 
 ```{r, echo=FALSE}
 # default y scale 
@@ -226,7 +226,7 @@ legend("topleft",c("BTC","ETH","XMR","XRP","SP500"),col=c("black","red","blue","
 
 The S&P 500 looks like there was no return at all, even though this period was one of the best bull markets in history. Clearly, the cryptocurrency dynamics in 2017 into early 2018 are significantly different from traditional price movements. Let's now quantify more precisely what these differences are and see which probability distributions appropriately model this behavior.
 
-### ROI for Crytocurrencies
+### ROI for Cryptocurrencies
 
 So what is the actual ROI for cryptocurrencies in this period:
 
@@ -546,6 +546,13 @@ abline(a, b, col = "red")
 - 16. Appropriate use of covariance or correlation.
 - 22. Team consists of exactly two members (otherwise, 1 or 3 is a possibility). (Just the two of us, standing on the shoulders of giants)
 
+## Future Work
+
+We did not perform a spectral analysis, but this would another interesting mechanism to determine
+if patterns in the data can be modeled. 
+
+
+
 ## Conclusion
 
 There is one only possible conclusion: immediately disband the search committee and hire us!
@@ -556,6 +563,9 @@ There is one only possible conclusion: immediately disband the search committee 
 Clifford S. Ang, *Analyzing Financial Data and Implementing Financial Models Using R*, Springer, 2015
 
 Berlinger et al. *Mastering R for Quantitative Finance*, Packt Publishing, 2015
+
+Mao Xin, "The VIX Volatility Index", Project Report 2011, url: [https://uu.diva-portal.org/smash/get/diva2:417612/FULLTEXT01.pdf](https://uu.diva-portal.org/smash/get/diva2:417612/FULLTEXT01.pdf)
+
 
 \newpage
 

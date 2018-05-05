@@ -4,13 +4,33 @@ subtitle: "Ethical Issues"
 author: "Patrick Watts, David Wihl"
 date: "May 6, 2018"
 output: pdf_document
+linkcolor: blue
 ---
 
-## Ethical Issues of Analysis Goes Here
+The rapid rise of cryptocurrencies raises a number of ethical issues. We will examine three:
 
-Retirees investing 25% of savings into cryptocurrencies
+### Role of a Central Bank
 
-Balance of market held by a very small number of individuals who can manipulate market
+Cryptocurrencies were divised for many purposes. Nakamoto's [original paper](https://bitcoin.org/bitcoin.pdf) (which is very readable) states that the original purpose of 
+Bitcoin was to enable electronic cash payments between individuals without the expense and scrutiny of financial institutions. As a secondary goal, this digital cash would also be outside purview of 
+central banks and governments, which have been the source of many financial crises in history. In practice, this has not occurred due to both technical and legal reasons. While central banks have
+generally provided stablizing effects in modern economies, they have also led to financial ruin,
+most recently in Venezuela and Greece for example. Cryptocurrencies have a strong ethical value
+in enabling wealth preservation when faced with a corrupt government. However, this also may allow
+looting and safe harbor of wealth and resources by a privileged class. Though this privileged class would have likely found means for external investment without cryptocurrencies, so at least the playing field is somewhat leveled. 
 
+### Speculation by Non-accredited Investors
 
+As shown in our report, returns on investment during the peak of cryptocurrency speculation in 2017 were akin to lottery tickets, not investments. The majority of these prices variations were due to speculation
+on the part of individual investors. When prices dropped, some investors were ruined to the point
+of committing suicide ([source](https://www.wsj.com/articles/bitcoin-plunges-more-than-25-in-four-days-1510560354)). Due to overspeculation, many governments such Korea and [China](https://www.wsj.com/articles/have-bitcoin-cant-travel-crackdown-grounds-china-cryptocurrency-executives-1505976459) significantly restricted investments of cryptocurrencies. As discussed in the previous paragraph, this may also have been due to the risk of the governments and central banks losing authority to these new media of exchange. This raises the ethical question of whether non-accredited investors should have been allowed to speculate in the first place. By restricting speculation, governments
+prevent individuals from hurting themselves, but this also concentrates power, and is hypocritical
+as these same governments also run lotteries to raise revenues. I take a more libertarian view that
+people should be allowed to make their own mistakes. Speculation has tended to be self correcting without
+the heavy hand of the law. 
 
+### Concentration of Ownership
+
+Bitcoin specifically has a very large concentration of value in a very small number of investors known
+as *whales* ([source](https://www.bloomberg.com/news/articles/2017-12-08/the-bitcoin-whales-1-000-people-who-own-40-percent-of-the-market)). About 40% of Bitcoin is held by approximately 1,000 users, any
+one of whom have sufficient float to significantly influence the market. This is perhaps the strongest ethical consideration to avoid Bitcoin or any other highly concentrated security. The individual investor is effectively at the whim of the whale. This concentration of power is not widely understood. Due to the cryptographic wallet format, it may not even be possible to know precisely the concentration of influence. This is probably the strongest argument, ethical or otherwise, to avoid investing in certain cryptocurrencies and chose only those currencies that are more widely held.
