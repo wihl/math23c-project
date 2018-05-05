@@ -10,7 +10,7 @@ linkcolor: blue
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r,warning=FALSE,message=FALSE}
 library(xts)
 library(quantmod)
 library(ggplot2)
@@ -106,7 +106,7 @@ close.prices = cbind(close.prices,ETHdf$Close,XMRdf$Close,XRPdf$Close)
 
 multidf = cbind(index(close.prices), data.frame(close.prices))
 names(multidf) = paste(c("Date","BTC","ETH","XMR","XRP"))
-# Merge in the non-crypto metricsmer
+# Merge in the non-crypto metrics
 multidf=merge(multidf,noncrypto,by.x="Date", by.y="DATE")
 
 multidf$BTC.idx = multidf$BTC / multidf$BTC[1]
@@ -118,6 +118,19 @@ multidf$GOLDAMGBD228NLBM.idx = multidf$GOLDAMGBD228NLBM / multidf$GOLDAMGBD228NL
 ```
 
 ```{r}
+# default y scale 
+plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2)
+lines(x=multidf$Date,y=multidf$ETH,col="red")
+lines(x=multidf$Date,y=multidf$XMR,col="blue")
+lines(x=multidf$Date,y=multidf$XRP,col="green")
+lines(x=multidf$Date,y=multidf$SP500.idx,col="purple",lwd=4)
+legend("topleft",c("BTC","ETH","XMR","XRP","SP500"),col=c("black","red","blue","green","purple"),
+       lty=c(1,1,1,1,1),
+       lwd=c(2,2,2,2,2))
+```
+
+```{r}
+# y scale from 0-500
 plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2,ylim=c(0,500))
 lines(x=multidf$Date,y=multidf$ETH,col="red")
 lines(x=multidf$Date,y=multidf$XMR,col="blue")
@@ -169,6 +182,10 @@ ggplot(multidf, aes(x=SP500delta)) +
                  fill="white") +
   geom_density(alpha=0.2,fill="#FF6666")
 
+# TODO: overlay S&P500 over any cryptocurrency
+
+# TODO: normalize values and overlay Gaussian
+
 ```
 ```{r}
 # Display bar plots showing Overall Return and Change in Daily Volume 
@@ -203,8 +220,48 @@ ggplot(data=barData, aes(x=Currency, y=Volumes)) +
 # Categorical Variables
 
 # Converting VIX into a categorical
+#TODO
+
+multidf$VIXCLS.idx = multidf$VIXCLS / multidf$VIXCLS[1]
+multidf$VIXCLSdelta = c(0,diff(multidf$VIXCLS.idx))
+multidf$VIXCLSsgn = ifelse(multidf$VIXCLSdelta>=0,1,-1)
+multidf$BTCsgn = ifelse(multidf$BTCdelta>=0,1,-1)
+```
+
+```{r}
+# TODO how many standard deviations are exceeded
+
+overlayGaussian = function(v,label){
+  mu_v = mean(v)
+  sd_v = sd(v)
+  v_std = (v - mu_v) / sd_v
+  hist(v_std,main=paste("Distribution of Standardized",label))
+  xfit = seq(min(v_std), max(v_std), length=length(v_std))
+  yfit = dnorm(xfit, mean=mu_v, sd = sd_v)
+  lines(xfit,yfit,col="red", lwd=2)
+  qqnorm(v_std,main=paste("QQ Plot of",label))
+  abline(0,1)
+
+}
+overlayGaussian(multidf$BTCdelta,"BTC Daily Price Changes")
+overlayGaussian(multidf$SP500delta,"S&P 500 Daily Price Changes")
 
 ```
+
+```{r}
+# Overlay Beta
+overlayBeta = function(v,label){
+  # this will rescale vector v to [0,1]
+  v_norm = (v - min(v)) / (max(v) - min(v))
+  hist(v_norm,main=label)
+  xfit = seq(0, 1, length=length(v))
+  yfit = dbeta(xfit, 1000,600)
+  lines(xfit,yfit,col="red", lwd=2)
+}
+#overlayBeta(multidf$BTCdelta,"Distribution of Normalized BTC Daily Price Changes")
+overlayBeta(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes")
+
+
 
 ```
 ## Topic 1 - Volalitility Exploration
