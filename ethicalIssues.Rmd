@@ -1,0 +1,16 @@
+---
+title: "Math23C Spring 2018 Final Project"
+subtitle: "Ethical Issues"
+author: "Patrick Watts, David Wihl"
+date: "May 6, 2018"
+output: pdf_document
+---
+
+## Ethical Issues of Analysis Goes Here
+
+Retirees investing 25% of savings into cryptocurrencies
+
+Balance of market held by a very small number of individuals who can manipulate market
+
+
+

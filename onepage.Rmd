@@ -1,0 +1,10 @@
+---
+title: "Math23C Spring 2018 Final Project"
+subtitle: "One Page Handout"
+author: "Patrick Watts, David Wihl"
+date: "May 6, 2018"
+output: pdf_document
+---
+
+## One Page Handout goes here
+
