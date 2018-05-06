@@ -529,6 +529,14 @@ permTest(standarize(multidf$ETHdelta), standarize(multidf$XMRdelta)) #p-value = 
 permTest(standarize(multidf$ETHdelta), standarize(multidf$XRPdelta)) #p-value = 0.64
 permTest(standarize(multidf$XRPdelta), standarize(multidf$XMRdelta)) #p-value = 0.77
 ```
+```{r}
+fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta), standarize(multidf$XRPdelta), standarize(multidf$ETHdelta)))
+                            
+cormat<-signif(cor(fourCur),2)
+cormat
+col<- colorRampPalette(c("blue", "white", "red"))(20)
+heatmap(cormat, col=col, symm=TRUE)
+```
 A p-value of 0.34 is quite large so 
 
 ## Summary of Project Requirements
