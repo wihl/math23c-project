@@ -1,10 +1,46 @@
 ---
-title: "Math23C Spring 2018 Final Project"
-subtitle: "One Page Handout"
+title: "Analysis of Cryptocurrency"
+subtitle: "Math23C Spring 2018 Final Project - One Page Handout"
 author: "Patrick Watts, David Wihl"
 date: "May 6, 2018"
 output: pdf_document
+linkcolor: blue
 ---
 
-## One Page Handout goes here
+#### Dataset and Initial Exploration
 
+We used two datasets: 
+
+* Cryptocurrency pricing for four cryptocurrencies (Bitcoin (BTC), Ethereum (ETH), Monero (XMR), Ripple (XRP). Bitcoin and Ethereum represent the majority of overall cryptocurrency market capitalization. We chose Monero and Ripple to see if market dynamics affected all cryptocurrencies equally.
+* For comparison against traditional markets, we downloaded eightteen other historical financial metrics including: S&P500, NASDAQ, DOW, Russell 2000, Foreign exchange rates (Yen-USD, Euro-USD, etc.), LIBOR rates (1M, 3M, 12M), commodity prices (gold, crude oil).
+
+The data was cleaned and merged to the same time periods, resulting in over 600 observations of 20 columns. As required by the context, we both standardized and normalized the data.
+
+Initial exploration revealed high variance in cryptocurrency price changes. While the same general pattern was observed across currencies, wild fluctuations could occur to one currency months 
+before the effect was seen in another currency.
+
+#### Topic 1: Distribution of Price Changes
+
+We examined price changes to test the well-known [A Random Walk Down Wall Street](https://en.wikipedia.org/wiki/A_Random_Walk_Down_Wall_Street) claims
+that price movements in traditional markets are random and should follow a Gaussian distribution. We clearly found by three different methods
+that price change variance **does not follow a Gaussian distribution**. In order to determine which
+would be a more appropriate model, we attempted to fit beta, inverse gamma and Cauchy distributions.
+Ultimately, Cauchy was closest. We then attempted to fit Cauchy to the higher variance cryptocurrency
+price variations. While this was closer, it was still not entirely satisfactory. It is interesting to note that the Cauchy probability distribution has infinite variance. This probably reflects the uncertainty and speculative nature of the cryptocurrency market!
+
+#### Topic 2: Correlation of Cryptocurrencies
+
+By traditional measures (covariance, permutation test, heatmap), cryptocurrency price changes seem highly
+correlated. However, these summary statistics fail to account for the temporal differences of
+when these changes occur, which can have an enormous impact on effective return rates. This
+was an interesting lesson in not trusting aggregate statistics that do not account for *when
+these correlations occur*. We tried using the price changes in one currency to forecast price
+changes in another currency using linear regression, which yielded results that were too 
+noisy to be used for trading purposes.
+
+### Conclusion
+
+The cryptocurrency market is too immature, too speculative and not grounded in tangible asset
+values to use traditional financial statistical measures. Even less common distribution functions
+do not model this new market to a satisfactory level. Any investment in this market would
+be based purely on emotion as rational investment opportunities could not be found by our analysis.
