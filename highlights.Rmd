@@ -791,6 +791,6 @@ Ngai Hang Chan, *Time Series - Applications to Finance with R and S-Plus*, Wiley
 ## Appendix A - Long Script
 
 This is the "long script" used to prepare these reports:
-```{r code=readLines(knitr::purl('writeup2.Rmd', documentation = 0)), eval = FALSE}
+```{r code=readLines(knitr::purl('highlights.Rmd', documentation = 0)), eval = FALSE}
 
 ```

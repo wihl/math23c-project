@@ -12,8 +12,8 @@ An R-Markdown file (`.Rmd`) has an associated PDF.
 
 `hw11q6.R` - initial investigation of data for Homework 11, Question 6
 
-`writeup2.Rmd` - script that loads all the data, explores it and does the analysis. This script
-  also generates the writeup2.R file to be submitted.
+`highlights.Rmd` - script that loads all the data, explores it and does the analysis. This script
+  also generates the long script R file to be submitted.
 
 `onepage.Rmd` - one page handout that explains the dataset and summarizes the analysis
 
@@ -21,8 +21,6 @@ An R-Markdown file (`.Rmd`) has an associated PDF.
 
 `submission/` - directory where we'll stage what has to be delivered into Canvas
 
-In the submission directory, `writeup2.Rmd` has been renamed `highlights.Rmd` (same goes for the PDF).
-The generated `writeup2.R` was renamed `longscript.R`. All the data files were put into a single zip.
 
 ## TODO
 
