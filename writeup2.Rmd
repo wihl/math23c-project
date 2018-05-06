@@ -152,7 +152,7 @@ plotSeries(BTCdf, "Bitcoin")
 plotSeries(ETHdf, "Ethereum")
 plotSeries(XMRdf, "Monero")
 plotSeries(XRPdf, "Ripple")
-dev.off()
+
 # Weekly Comparison - not used
 # wk = BTCdata
 # data.wk = to.weekly(wk)
@@ -172,11 +172,12 @@ However, if we overlay these change in prices on the same plot, and rescale to a
 
 ```{r, echo=FALSE}
 
+# Extract closing prices
 BTCdata = xts(BTCdf[,2:7],order.by = BTCdf[,1])
-
 close.prices = BTCdata$Close
 close.prices = cbind(close.prices,ETHdf$Close,XMRdf$Close,XRPdf$Close)
 
+# Create one new dataframe to compare closing prices of both crypto and non-crypto securities
 multidf = cbind(index(close.prices), data.frame(close.prices))
 names(multidf) = paste(c("Date","BTC","ETH","XMR","XRP"))
 # Merge in the non-crypto metrics
@@ -194,10 +195,12 @@ multidf$GOLDAMGBD228NLBM.idx = multidf$GOLDAMGBD228NLBM / multidf$GOLDAMGBD228NL
 The following plot scales to the most popular cryptocurrency: Bitcoin (BTC)
 
 ```{r, echo=FALSE}
-# default y scale 
+# Plot changes in pricing over time
+# 1- default y scale 
 par(op)
 plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2,
-     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by BTC)")
+     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by BTC)",
+     ylab="Scaled Price")
 lines(x=multidf$Date,y=multidf$ETH,col="red")
 lines(x=multidf$Date,y=multidf$XMR,col="blue")
 lines(x=multidf$Date,y=multidf$XRP,col="green")
@@ -212,9 +215,10 @@ legend("topleft",c("BTC","ETH","XMR","XRP","SP500"),col=c("black","red","blue","
 Now, if we scale by the currency that rose most aggressively, the story appears different.
 
 ```{r,echo=FALSE}
-# y scale from 0-500
+# 2- y scale from 0-500
 plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2,ylim=c(0,500),
-     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by ETH)")
+     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by ETH)",
+     ylab="Scaled Price")
 lines(x=multidf$Date,y=multidf$ETH,col="red")
 lines(x=multidf$Date,y=multidf$XMR,col="blue")
 lines(x=multidf$Date,y=multidf$XRP,col="green")
@@ -256,11 +260,13 @@ lottery tickets! Here is a graphical representation of these returns:
 # REQ: barplot
 ggplot(data=barData, aes(x=Currency, y=Returns)) +
   geom_bar(stat="identity",fill="steelblue") + 
-  ggtitle("Cumulative Return on Investment (not percent!) Aug 2015 - Feb 2018")
+  ggtitle("Cumulative Return on Investment (not percent!) Aug 2015 - Feb 2018") +
+  theme(plot.title = element_text(hjust = 0.5)) 
 
 ggplot(data=barData, aes(x=Currency, y=Volumes)) +
   geom_bar(stat="identity",fill="chocolate4") +
-  ggtitle("Change in Daily Volume Aug 2015 - Feb 2018")
+  ggtitle("Change in Daily Volume Aug 2015 - Feb 2018") +
+  theme(plot.title = element_text(hjust = 0.5)) 
 
 ```
 
@@ -303,7 +309,7 @@ is a not a Gaussian Distribution**. This has been confirmed by other [sources](h
 
 
 
-```{r,echo=FALSE}
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
 # Plot histogram of standardized daily price changes in S&P500, overlaid with equivalent
 # Gaussian distribution.
 ggplot(multidf, aes(x=SP500deltaStd)) +
@@ -316,21 +322,24 @@ ggplot(multidf, aes(x=SP500deltaStd)) +
       n*dnorm(x=x, mean=mean, sd=sd)
     },
     args=with(multidf, c(mean=mu_SP500delta, sd=sd_SP500delta, n=length(multidf)))
-  )
+  ) +
+  ggtitle("Histogram of S&P 500 Standardized Daily Price Changes") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("S&P 500 Standardized Daily Price Change")
 
 ```
 
 (REQ: A probablity density graph overload on a histogram)
 
-Let's confirm this in two additional ways
+Let's confirm this in two additional ways: first, a QQ-plot.
 
-```{r}
+```{r, echo=FALSE}
 # QQplot to see if a distribution is normal
 qqnorm(multidf$SP500deltaStd,main="QQ Plot of S&P 500 Daily Price Changes")
 abline(0,1)
 ```
 
-This can also be confirmed analytically via the Shapiro-Wilk Normality test. 
+Secondly, this can also be confirmed analytically via the Shapiro-Wilk Normality test. 
 
 ```{r, echo=FALSE}
 shapiro.test(multidf$SP500deltaStd)
@@ -343,6 +352,7 @@ So by three different methods, it is clear that the Random Walk Down Wall St. is
 
 ### So what is the appropriate distribution for the market?
 
+XXX
 
 
 ### Distribution of Cryptocurrency Price Changes
@@ -460,8 +470,8 @@ overlayGaussian = function(v,label){
   abline(0,1)
 
 }
-overlayGaussian(multidf$BTCdelta,"BTC Daily Price Changes")
-overlayGaussian(multidf$SP500delta,"S&P 500 Daily Price Changes")
+#overlayGaussian(multidf$BTCdelta,"BTC Daily Price Changes")
+#overlayGaussian(multidf$SP500delta,"S&P 500 Daily Price Changes")
 
 ```
 
@@ -476,30 +486,115 @@ overlayBeta = function(v,label){
   lines(xfit,yfit,col="red", lwd=2)
 }
 #overlayBeta(multidf$BTCdelta,"Distribution of Normalized BTC Daily Price Changes")
-overlayBeta(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes")
+#overlayBeta(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes")
 
 
 
 ```
 
 ## Topic 2 - Correlation between Cryptocurrencies
-```{r}
-cor(BTCdf$Close, ETHdf$Close)
-cor(BTCdf$Close, XMRdf$Close)
-cor(BTCdf$Close, XRPdf$Close)
-cor(ETHdf$Close, XMRdf$Close)
-cor(ETHdf$Close, XRPdf$Close)
-cor(XMRdf$Close, XRPdf$Close)
 
+### Correlation of Cryptocurrency Prices
+
+In the Exploratory Data Analysis, we saw that cryptocurrencies had the same general trend and shape,
+but the timing could be different by months. For example, Ethereum (ETH) spiked months before Monero (XMR) which in turn spiked before Bitcoin (BTC). We'll now examine these correlations more in depth.
+
+```{r, echo=FALSE}
+# Correlation of cryptocurrency prices
+corData = data.frame(Currency=c("BTCETH","BTCXMR","BTCXRP","ETHXMR","ETHXRP","XMRXRP"), 
+                     Correlations=c(
+                        cor(BTCdf$Close, ETHdf$Close),
+                        cor(BTCdf$Close, XMRdf$Close),
+                        cor(BTCdf$Close, XRPdf$Close),
+                        cor(ETHdf$Close, XMRdf$Close),
+                        cor(ETHdf$Close, XRPdf$Close),
+                        cor(XMRdf$Close, XRPdf$Close)) )
+kable(corData[order(-corData$Correlations),], caption="Correlations of Cryptocurrency Closing Prices",
+      row.names = F,digits=2)
+```
+
+Interestingly, by correlation alone, we see a high degree of similarity. However, as we saw in the
+previous line charts of prices over time, *these correlations do not occur at the same time* leading
+investment opportunities if certain currencies are consistently leading indicators for the
+other currencies. 
+
+(REQ: appropriate use of correlation)
+
+### Using Linear Regression to Predict Prices Changes
+
+For the most highly correlated currency pair (BTCXMR), let's examine if change in prices 
+in one can be used to predict change in prices in the other via a linear regression:
+
+```{r, echo=FALSE}
 #Largest correlation between BTC and XMR
-plot(BTCdf$Close,XMRdf$Close,pch = ".",cex = 3)
+# Linear regression - using change in BTC prices to predict change in XMR prices
+plot(multidf$BTCdelta,multidf$XMRdelta,pch = ".",cex = 3, 
+     main="Using Linear Regression of Price Changes \nto Predict One Currency from Another",
+     xlab="Change in BTC prices",
+     ylab="Change in XMR prices")
 #b is slope
-b <- cov(BTCdf$Close,XMRdf$Close)/var(BTCdf$Close)
+b <- cov(multidf$BTCdelta,multidf$XMRdelta)/var(multidf$BTCdelta)
 #a is intercept
-a <- mean(XMRdf$Close) - b*mean(BTCdf$Close);a    
+a <- mean(multidf$BTCdelta) - b*mean(multidf$BTCdelta)   
 #We can add this regression line to the plot of the data
 abline(a, b, col = "red")
+
 ```
+As the above plot shows, due to the wide spread away from the line of best fit, linear regression
+would not be a good means of predicting price changes even for the most highly correlated 
+currency pair.
+
+Running a linear regression in R yields:
+
+```{r, echo=FALSE}
+# Check using R's linear regression function
+lm = lm(XMRdelta~BTCdelta,data=multidf)
+summary(lm)
+```
+An $R^2$ of 0.21 shows a weakly predictive model. Clearly, correlation does not tell a sufficient
+story about the relationship between two currencies.
+
+(REQ: use of linear regression)
+
+### Permutation Test
+
+```{r}
+standarize <- function(v) {
+  mu_v = mean(v)
+  sd_v = sd(v)
+  return (v - mu_v) / sd_v
+}
+  
+#Define function so we can repeat the process easily
+permTest <- function(v1, v2) {
+ 
+  Obs <- mean(v1 - v2); Obs
+  N <- 10000; diff <- numeric(N)
+  for (i in 1:N) {
+    scramble <- sample(v1,length(v1))
+    diff[i] <- mean(scramble - v2)
+  }
+  hist(diff)
+  abline(v=Obs, col = "red")
+  mean(diff > Obs)
+}
+
+permTest(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta)) #p-value = 0.35
+permTest(standarize(multidf$BTCdelta), standarize(multidf$XRPdelta)) #p-value = 0.97
+permTest(standarize(multidf$BTCdelta), standarize(multidf$ETHdelta)) #p-value = 0.06
+permTest(standarize(multidf$ETHdelta), standarize(multidf$XMRdelta)) #p-value = 0.42
+permTest(standarize(multidf$ETHdelta), standarize(multidf$XRPdelta)) #p-value = 0.64
+permTest(standarize(multidf$XRPdelta), standarize(multidf$XMRdelta)) #p-value = 0.77
+```
+```{r}
+fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta), standarize(multidf$XRPdelta), standarize(multidf$ETHdelta)))
+                            
+cormat<-signif(cor(fourCur),2)
+cormat
+col<- colorRampPalette(c("blue", "white", "red"))(20)
+heatmap(cormat, col=col, symm=TRUE)
+```
+A p-value of 0.34 is quite large so 
 
 ## Summary of Project Requirements
 
@@ -558,7 +653,14 @@ if patterns in the data can be modeled.
 There is one only possible conclusion: immediately disband the search committee and hire us!
 
 
+## Acknowledgements
+
+We'd like to thank Paul Bamberg, Joe Palin, Rachel Gologorsky, Mihika Shilpi and the other
+Math 23C staff for a challenging, interesting and very educational class. 
+
 ## References
+
+The full version of this project can be found at [https://github.com/wihl/math23c-project](https://github.com/wihl/math23c-project)
 
 Clifford S. Ang, *Analyzing Financial Data and Implementing Financial Models Using R*, Springer, 2015
 

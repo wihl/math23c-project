@@ -51,7 +51,7 @@ plotSeries(BTCdf, "Bitcoin")
 plotSeries(ETHdf, "Ethereum")
 plotSeries(XMRdf, "Monero")
 plotSeries(XRPdf, "Ripple")
-dev.off()
+
 # Weekly Comparison - not used
 # wk = BTCdata
 # data.wk = to.weekly(wk)
@@ -60,11 +60,12 @@ dev.off()
 # chartSeries(OHLC)
 
 
+# Extract closing prices
 BTCdata = xts(BTCdf[,2:7],order.by = BTCdf[,1])
-
 close.prices = BTCdata$Close
 close.prices = cbind(close.prices,ETHdf$Close,XMRdf$Close,XRPdf$Close)
 
+# Create one new dataframe to compare closing prices of both crypto and non-crypto securities
 multidf = cbind(index(close.prices), data.frame(close.prices))
 names(multidf) = paste(c("Date","BTC","ETH","XMR","XRP"))
 # Merge in the non-crypto metrics
@@ -77,10 +78,12 @@ multidf$XMR.idx = multidf$XMR / multidf$XMR[1]
 multidf$XRP.idx = multidf$XRP / multidf$XRP[1]
 multidf$SP500.idx = multidf$SP500 / multidf$SP500[1]
 multidf$GOLDAMGBD228NLBM.idx = multidf$GOLDAMGBD228NLBM / multidf$GOLDAMGBD228NLBM[1]
-# default y scale 
+# Plot changes in pricing over time
+# 1- default y scale 
 par(op)
 plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2,
-     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by BTC)")
+     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by BTC)",
+     ylab="Scaled Price")
 lines(x=multidf$Date,y=multidf$ETH,col="red")
 lines(x=multidf$Date,y=multidf$XMR,col="blue")
 lines(x=multidf$Date,y=multidf$XRP,col="green")
@@ -88,9 +91,10 @@ lines(x=multidf$Date,y=multidf$SP500.idx,col="purple",lwd=4)
 legend("topleft",c("BTC","ETH","XMR","XRP","SP500"),col=c("black","red","blue","green","purple"),
        lty=c(1,1,1,1,1),
        lwd=c(2,2,2,2,2))
-# y scale from 0-500
+# 2- y scale from 0-500
 plot(x = multidf$Date,y=multidf$BTC.idx,type="l",xlab="Date",col="black",lty=1,lwd=2,ylim=c(0,500),
-     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by ETH)")
+     main="Comparison of Four Major Cryptocurrencies vs. S&P 500\n (scaled by ETH)",
+     ylab="Scaled Price")
 lines(x=multidf$Date,y=multidf$ETH,col="red")
 lines(x=multidf$Date,y=multidf$XMR,col="blue")
 lines(x=multidf$Date,y=multidf$XRP,col="green")
@@ -116,11 +120,13 @@ kable(barData, caption="Cryptocurrency ROI",
 # REQ: barplot
 ggplot(data=barData, aes(x=Currency, y=Returns)) +
   geom_bar(stat="identity",fill="steelblue") + 
-  ggtitle("Cumulative Return on Investment (not percent!) Aug 2015 - Feb 2018")
+  ggtitle("Cumulative Return on Investment (not percent!) Aug 2015 - Feb 2018") +
+  theme(plot.title = element_text(hjust = 0.5)) 
 
 ggplot(data=barData, aes(x=Currency, y=Volumes)) +
   geom_bar(stat="identity",fill="chocolate4") +
-  ggtitle("Change in Daily Volume Aug 2015 - Feb 2018")
+  ggtitle("Change in Daily Volume Aug 2015 - Feb 2018") +
+  theme(plot.title = element_text(hjust = 0.5)) 
 
 # distribution of relative price changes
 multidf$BTCdelta = c(0,diff(multidf$BTC.idx))
@@ -146,7 +152,10 @@ ggplot(multidf, aes(x=SP500deltaStd)) +
       n*dnorm(x=x, mean=mean, sd=sd)
     },
     args=with(multidf, c(mean=mu_SP500delta, sd=sd_SP500delta, n=length(multidf)))
-  )
+  ) +
+  ggtitle("Histogram of S&P 500 Standardized Daily Price Changes") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("S&P 500 Standardized Daily Price Change")
 
 # QQplot to see if a distribution is normal
 qqnorm(multidf$SP500deltaStd,main="QQ Plot of S&P 500 Daily Price Changes")
@@ -257,8 +266,8 @@ overlayGaussian = function(v,label){
   abline(0,1)
 
 }
-overlayGaussian(multidf$BTCdelta,"BTC Daily Price Changes")
-overlayGaussian(multidf$SP500delta,"S&P 500 Daily Price Changes")
+#overlayGaussian(multidf$BTCdelta,"BTC Daily Price Changes")
+#overlayGaussian(multidf$SP500delta,"S&P 500 Daily Price Changes")
 
 # Overlay Beta
 overlayBeta = function(v,label){
@@ -270,23 +279,67 @@ overlayBeta = function(v,label){
   lines(xfit,yfit,col="red", lwd=2)
 }
 #overlayBeta(multidf$BTCdelta,"Distribution of Normalized BTC Daily Price Changes")
-overlayBeta(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes")
+#overlayBeta(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes")
 
 
 
-cor(BTCdf$Close, ETHdf$Close)
-cor(BTCdf$Close, XMRdf$Close)
-cor(BTCdf$Close, XRPdf$Close)
-cor(ETHdf$Close, XMRdf$Close)
-cor(ETHdf$Close, XRPdf$Close)
-cor(XMRdf$Close, XRPdf$Close)
-
+# Correlation of cryptocurrency prices
+corData = data.frame(Currency=c("BTCETH","BTCXMR","BTCXRP","ETHXMR","ETHXRP","XMRXRP"), 
+                     Correlations=c(
+                        cor(BTCdf$Close, ETHdf$Close),
+                        cor(BTCdf$Close, XMRdf$Close),
+                        cor(BTCdf$Close, XRPdf$Close),
+                        cor(ETHdf$Close, XMRdf$Close),
+                        cor(ETHdf$Close, XRPdf$Close),
+                        cor(XMRdf$Close, XRPdf$Close)) )
+kable(corData[order(-corData$Correlations),], caption="Correlations of Cryptocurrency Closing Prices",
+      row.names = F,digits=2)
 #Largest correlation between BTC and XMR
-plot(BTCdf$Close,XMRdf$Close,pch = ".",cex = 3)
+# Linear regression - using change in BTC prices to predict change in XMR prices
+plot(multidf$BTCdelta,multidf$XMRdelta,pch = ".",cex = 3, 
+     main="Using Linear Regression of Price Changes \nto Predict One Currency from Another",
+     xlab="Change in BTC prices",
+     ylab="Change in XMR prices")
 #b is slope
-b <- cov(BTCdf$Close,XMRdf$Close)/var(BTCdf$Close)
+b <- cov(multidf$BTCdelta,multidf$XMRdelta)/var(multidf$BTCdelta)
 #a is intercept
-a <- mean(XMRdf$Close) - b*mean(BTCdf$Close);a    
+a <- mean(multidf$BTCdelta) - b*mean(multidf$BTCdelta)   
 #We can add this regression line to the plot of the data
 abline(a, b, col = "red")
+
+# Check using R's linear regression function
+lm = lm(XMRdelta~BTCdelta,data=multidf)
+summary(lm)
+standarize <- function(v) {
+  mu_v = mean(v)
+  sd_v = sd(v)
+  return (v - mu_v) / sd_v
+}
+  
+#Define function so we can repeat the process easily
+permTest <- function(v1, v2) {
+ 
+  Obs <- mean(v1 - v2); Obs
+  N <- 10000; diff <- numeric(N)
+  for (i in 1:N) {
+    scramble <- sample(v1,length(v1))
+    diff[i] <- mean(scramble - v2)
+  }
+  hist(diff)
+  abline(v=Obs, col = "red")
+  mean(diff > Obs)
+}
+
+permTest(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta)) #p-value = 0.35
+permTest(standarize(multidf$BTCdelta), standarize(multidf$XRPdelta)) #p-value = 0.97
+permTest(standarize(multidf$BTCdelta), standarize(multidf$ETHdelta)) #p-value = 0.06
+permTest(standarize(multidf$ETHdelta), standarize(multidf$XMRdelta)) #p-value = 0.42
+permTest(standarize(multidf$ETHdelta), standarize(multidf$XRPdelta)) #p-value = 0.64
+permTest(standarize(multidf$XRPdelta), standarize(multidf$XMRdelta)) #p-value = 0.77
+fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta), standarize(multidf$XRPdelta), standarize(multidf$ETHdelta)))
+                            
+cormat<-signif(cor(fourCur),2)
+cormat
+col<- colorRampPalette(c("blue", "white", "red"))(20)
+heatmap(cormat, col=col, symm=TRUE)
 ## 
