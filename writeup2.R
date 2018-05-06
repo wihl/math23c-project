@@ -310,6 +310,7 @@ abline(a, b, col = "red")
 # Check using R's linear regression function
 lm = lm(XMRdelta~BTCdelta,data=multidf)
 summary(lm)
+# Permutation Tests
 standarize <- function(v) {
   mu_v = mean(v)
   sd_v = sd(v)
@@ -317,7 +318,7 @@ standarize <- function(v) {
 }
   
 #Define function so we can repeat the process easily
-permTest <- function(v1, v2) {
+permTest <- function(v1, v2, label1,label2) {
  
   Obs <- mean(v1 - v2); Obs
   N <- 10000; diff <- numeric(N)
@@ -325,17 +326,20 @@ permTest <- function(v1, v2) {
     scramble <- sample(v1,length(v1))
     diff[i] <- mean(scramble - v2)
   }
-  hist(diff)
+  pval = mean(diff > Obs)
+  hist(diff,main=paste0("Permutation Test of ",label1," and ",label2,"\n(p-value:",pval,")"),
+       xlab=label1, ylab=label2)
   abline(v=Obs, col = "red")
-  mean(diff > Obs)
+  return(pval)
 }
-
-permTest(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta)) #p-value = 0.35
-permTest(standarize(multidf$BTCdelta), standarize(multidf$XRPdelta)) #p-value = 0.97
-permTest(standarize(multidf$BTCdelta), standarize(multidf$ETHdelta)) #p-value = 0.06
-permTest(standarize(multidf$ETHdelta), standarize(multidf$XMRdelta)) #p-value = 0.42
-permTest(standarize(multidf$ETHdelta), standarize(multidf$XRPdelta)) #p-value = 0.64
-permTest(standarize(multidf$XRPdelta), standarize(multidf$XMRdelta)) #p-value = 0.77
+par(mfrow=c(3,2))
+permTest(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta),"BTC","XMR") 
+permTest(standarize(multidf$BTCdelta), standarize(multidf$XRPdelta),"BTC","XRP")
+permTest(standarize(multidf$BTCdelta), standarize(multidf$ETHdelta),"BTC","ETH")
+permTest(standarize(multidf$ETHdelta), standarize(multidf$XMRdelta),"ETH","XMR")
+permTest(standarize(multidf$ETHdelta), standarize(multidf$XRPdelta),"ETH","XRP")
+permTest(standarize(multidf$XRPdelta), standarize(multidf$XMRdelta),"XRP","XMR")
+par(op)
 fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta), standarize(multidf$XRPdelta), standarize(multidf$ETHdelta)))
                             
 cormat<-signif(cor(fourCur),2)
