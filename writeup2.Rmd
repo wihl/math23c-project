@@ -17,11 +17,20 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ```{r,warning=FALSE,message=FALSE,echo=FALSE}
+# Exteral libraries
 library(xts)
 library(quantmod)
 library(ggplot2)
 library(knitr)
+# Save parameters for later reset
 op <- par(no.readonly = TRUE)
+# Utility function to standardize a vector
+standarize <- function(v) {
+  mu_v = mean(v)
+  sd_v = sd(v)
+  return (v - mu_v) / sd_v
+}
+  
 ```
 
 ## Introduction
@@ -513,6 +522,22 @@ kable(corData[order(-corData$Correlations),], caption="Correlations of Cryptocur
       row.names = F,digits=2)
 ```
 
+A heatmap is an effective visualization of these correlations. To provide a slightly different
+perspective, we'll visualize the correlations of *standardized price changes* rather than just
+closing price.
+
+```{r, echo=FALSE}
+# Visualize correlations using a heatmap
+fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), 
+                            standarize(multidf$XMRdelta), 
+                            standarize(multidf$XRPdelta), 
+                            standarize(multidf$ETHdelta)))
+colnames(fourCur) = c("BTC","XMR","XRP","ETH")
+cormat<-signif(cor(fourCur),2)
+col<- colorRampPalette(c("blue","white", "red"))(20)
+heatmap(cormat, col=col, symm=TRUE,Rowv=NA, main="Price Change Correlations")
+```
+
 Interestingly, by correlation alone, we see a high degree of similarity. However, as we saw in the
 previous line charts of prices over time, *these correlations do not occur at the same time* leading
 investment opportunities if certain currencies are consistently leading indicators for the
@@ -564,12 +589,6 @@ prices movements of the currencies.
 
 ```{r, echo=FALSE,results="hide",fig.height=6}
 # Permutation Tests
-standarize <- function(v) {
-  mu_v = mean(v)
-  sd_v = sd(v)
-  return (v - mu_v) / sd_v
-}
-  
 #Define function so we can repeat the process easily
 permTest <- function(v1, v2, label1,label2) {
  
@@ -603,15 +622,7 @@ of multiple variables that change over time.
 
 (REQ: a permutation test, "A convincing demonstration of a relationship that might have been statistically significant but that turns out not to be so")
 
-```{r}
-fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta), standarize(multidf$XRPdelta), standarize(multidf$ETHdelta)))
-                            
-cormat<-signif(cor(fourCur),2)
-cormat
-col<- colorRampPalette(c("blue", "white", "red"))(20)
-heatmap(cormat, col=col, symm=TRUE)
-```
-A p-value of 0.34 is quite large so 
+
 
 ## Summary of Project Requirements
 

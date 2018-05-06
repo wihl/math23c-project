@@ -1,9 +1,18 @@
 knitr::opts_chunk$set(echo = TRUE)
+# Exteral libraries
 library(xts)
 library(quantmod)
 library(ggplot2)
 library(knitr)
+# Save parameters for later reset
 op <- par(no.readonly = TRUE)
+# Utility function to standardize a vector
+standarize <- function(v) {
+  mu_v = mean(v)
+  sd_v = sd(v)
+  return (v - mu_v) / sd_v
+}
+  
 # Read one price history file per currency
 BTCdf = read.csv("data/bitcoin_price.csv", stringsAsFactors = F)
 ETHdf = read.csv("data/ethereum_price.csv", stringsAsFactors = F)
@@ -294,6 +303,15 @@ corData = data.frame(Currency=c("BTCETH","BTCXMR","BTCXRP","ETHXMR","ETHXRP","XM
                         cor(XMRdf$Close, XRPdf$Close)) )
 kable(corData[order(-corData$Correlations),], caption="Correlations of Cryptocurrency Closing Prices",
       row.names = F,digits=2)
+# Visualize correlations using a heatmap
+fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), 
+                            standarize(multidf$XMRdelta), 
+                            standarize(multidf$XRPdelta), 
+                            standarize(multidf$ETHdelta)))
+colnames(fourCur) = c("BTC","XMR","XRP","ETH")
+cormat<-signif(cor(fourCur),2)
+col<- colorRampPalette(c("blue","white", "red"))(20)
+heatmap(cormat, col=col, symm=TRUE,Rowv=NA, main="Price Change Correlations")
 #Largest correlation between BTC and XMR
 # Linear regression - using change in BTC prices to predict change in XMR prices
 plot(multidf$BTCdelta,multidf$XMRdelta,pch = ".",cex = 3, 
@@ -311,12 +329,6 @@ abline(a, b, col = "red")
 lm = lm(XMRdelta~BTCdelta,data=multidf)
 summary(lm)
 # Permutation Tests
-standarize <- function(v) {
-  mu_v = mean(v)
-  sd_v = sd(v)
-  return (v - mu_v) / sd_v
-}
-  
 #Define function so we can repeat the process easily
 permTest <- function(v1, v2, label1,label2) {
  
@@ -340,10 +352,4 @@ permTest(standarize(multidf$ETHdelta), standarize(multidf$XMRdelta),"ETH","XMR")
 permTest(standarize(multidf$ETHdelta), standarize(multidf$XRPdelta),"ETH","XRP")
 permTest(standarize(multidf$XRPdelta), standarize(multidf$XMRdelta),"XRP","XMR")
 par(op)
-fourCur <- data.frame(cbind(standarize(multidf$BTCdelta), standarize(multidf$XMRdelta), standarize(multidf$XRPdelta), standarize(multidf$ETHdelta)))
-                            
-cormat<-signif(cor(fourCur),2)
-cormat
-col<- colorRampPalette(c("blue", "white", "red"))(20)
-heatmap(cormat, col=col, symm=TRUE)
 ## 
