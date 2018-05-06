@@ -31,6 +31,6 @@ To submit:
 * [ ] A long, well-commented script that loads the dataset, explores it and does all the analysis (`writeup2.R`)
 * [ ] A shorted .Rmd with compiled .pdf that presents the highlights in ten minutes (`writeup2.Rmd`)
 * [ ] A one-page handout that explains the dataset and summarizes the analysis (`onepage.Rmd`)
-* [ ] A one-page document that discusses ethical issues raised by conclusions reached from analysis of the data (`ethicalIssues.Rmd`)
+* [x] A one-page document that discusses ethical issues raised by conclusions reached from analysis of the data (`ethicalIssues.Rmd`)
 
 
