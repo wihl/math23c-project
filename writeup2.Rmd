@@ -348,7 +348,7 @@ qqnorm(multidf$SP500deltaStd,main="QQ Plot of S&P 500 Daily Price Changes")
 abline(0,1)
 ```
 
-Secondly, this can also be confirmed analytically via the Shapiro-Wilk Normality test. 
+This can also be confirmed analytically via the Shapiro-Wilk Normality test. 
 
 ```{r, echo=FALSE}
 shapiro.test(multidf$SP500deltaStd)
@@ -361,10 +361,59 @@ So by three different methods, it is clear that the Random Walk Down Wall St. is
 
 ### So what is the appropriate distribution for the market?
 
-XXX
+We attempted several different distributions to find the best fit: beta, cauchy, inverse gamma.
 
+We used the R MASS package, with the `fitdistr` to find the optimal parameters.
+
+
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
+# Find a better distribution than Gaussian. 
+# Plot histogram of standardized daily price changes in S&P500, overlaid with equivalent
+# Cauchy distribution.
+ggplot(multidf, aes(x=SP500deltaStd)) +
+  geom_histogram(aes(y=..density..),
+                 binwidth=0.01,colour="purple",
+                 fill="white") +
+  #geom_density(alpha=0.2,fill="#FF6666") +
+  stat_function(
+    fun = function(x,mean,sd,n){
+      n*dcauchy(x=x, location=-0.014, scale=1.1)
+    },
+    args=with(multidf, c(mean=mu_SP500delta, sd=sd_SP500delta, n=length(multidf)))
+  ) +
+  ggtitle("Histogram of S&P 500 Standardized Daily Price Changes\nCauchy Overlay (scale=1.1)") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("S&P 500 Standardized Daily Price Change")
+
+```
+
+After many attempts, no single distribution was entirely satisfactory. The closest approximation
+was the Cauchy distribution over the normalized (rescaled to [0,1]) price change values as shown below.
+
+
+```{r,echo=FALSE}
+# Overlay Cauchy
+overlayCauchy = function(v,label,scale){
+  # this will rescale vector v to [0,1]
+  v_norm = (v - min(v)) / (max(v) - min(v))
+  hist(v_norm,main=paste0(label,"\nCauchy Distribution Overlay (scale=",scale,")"),
+       xlab="",breaks=20)
+  xfit = seq(0, 1, length=length(v))
+  yfit = dcauchy(x=xfit, location=mean(v_norm), scale=scale)
+  lines(xfit,yfit,col="red", lwd=2)
+}
+overlayCauchy(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes",0.0015)
+
+
+```
+
+(REQ: Appropriate use of R functions for a probability distribution other than binomial, normal, or chi-square)
 
 ### Distribution of Cryptocurrency Price Changes
+
+We then attempted to see if the Cauchy distribution would adequately fit the higher
+variance cryptocurrency distributions. It came closer than any other distribution but
+was still not entirely satisfactory.
 
 ```{r,echo=FALSE}
 # From http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
@@ -418,13 +467,7 @@ p1 = ggplot(multidf, aes(x=BTCdelta)) +
   geom_histogram(aes(y=..density..),
                  binwidth=0.1,colour="black",
                  fill="white") +
-  geom_density(alpha=0.2,fill="#FF6666") +
-  stat_function(
-    fun = function(x,mean,sd,n){
-      n*dnorm(x=x, mean=mean, sd=sd)
-    },
-    args=with(multidf, c(mean=mean(BTCdelta), sd=sd(BTCdelta), n=length(multidf)))
-  )
+  geom_density(alpha=0.2,fill="#FF6666")
 
 p2 = ggplot(multidf, aes(x=ETHdelta)) +
   geom_histogram(aes(y=..density..),
@@ -445,61 +488,48 @@ p4 = ggplot(multidf, aes(x=XRPdelta)) +
   geom_density(alpha=0.2,fill="#FF6666")
 
 multiplot(p1,p2,p3,p4,cols=2)
-# TODO: overlay S&P500 over any cryptocurrency
+par(op)
+overlayCauchy(multidf$BTCdelta,"Distribution of Normalized BTC Daily Price Changes",0.0005)
 
-# TODO: normalize values and overlay Gaussian
 
 ```
 
 
-```{r}
+
+It is interesting to note that the Cauchy probability distribution has infinite variance.
+This probably reflects the uncertainty of the cryptocurrency market!
+
+
+```{r, echo=FALSE}
 # Categorical Variables
 
 # Converting VIX into a categorical
-#TODO
-
 multidf$VIXCLS.idx = multidf$VIXCLS / multidf$VIXCLS[1]
 multidf$VIXCLSdelta = c(0,diff(multidf$VIXCLS.idx))
 multidf$VIXCLSsgn = ifelse(multidf$VIXCLSdelta>=0,1,-1)
 multidf$BTCsgn = ifelse(multidf$BTCdelta>=0,1,-1)
 ```
 
-```{r}
-# TODO how many standard deviations are exceeded
-
-overlayGaussian = function(v,label){
-  mu_v = mean(v)
-  sd_v = sd(v)
-  v_std = (v - mu_v) / sd_v
-  hist(v_std,main=paste("Distribution of Standardized",label))
-  xfit = seq(min(v_std), max(v_std), length=length(v_std))
-  yfit = dnorm(xfit, mean=mu_v, sd = sd_v)
-  lines(xfit,yfit,col="red", lwd=2)
-  qqnorm(v_std,main=paste("QQ Plot of",label))
-  abline(0,1)
-
-}
+```{r,echo=FALSE}
+# Not used
+# overlayGaussian = function(v,label){
+#   mu_v = mean(v)
+#   sd_v = sd(v)
+#   v_std = (v - mu_v) / sd_v
+#   hist(v_std,main=paste("Distribution of Standardized",label))
+#   xfit = seq(min(v_std), max(v_std), length=length(v_std))
+#   yfit = dnorm(xfit, mean=mu_v, sd = sd_v)
+#   lines(xfit,yfit,col="red", lwd=2)
+#   qqnorm(v_std,main=paste("QQ Plot of",label))
+#   abline(0,1)
+# 
+# }
 #overlayGaussian(multidf$BTCdelta,"BTC Daily Price Changes")
 #overlayGaussian(multidf$SP500delta,"S&P 500 Daily Price Changes")
 
 ```
 
-```{r}
-# Overlay Beta
-overlayBeta = function(v,label){
-  # this will rescale vector v to [0,1]
-  v_norm = (v - min(v)) / (max(v) - min(v))
-  hist(v_norm,main=label)
-  xfit = seq(0, 1, length=length(v))
-  yfit = dbeta(xfit, 1000,600)
-  lines(xfit,yfit,col="red", lwd=2)
-}
-#overlayBeta(multidf$BTCdelta,"Distribution of Normalized BTC Daily Price Changes")
-#overlayBeta(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes")
 
-
-
-```
 
 ## Topic 2 - Correlation between Cryptocurrencies
 
@@ -677,6 +707,8 @@ change in volatility.  Since VIX was not useful at forecasting volatility of the
 for which it was designed, we did not attempt to see if it could be further used to forecast
 volatility of the more unstable cryptocurrency market.
 
+(REQ: Contingency table and related analysis)
+
 ## Summary of Project Requirements
 
 #### Required dataset standards
@@ -698,7 +730,7 @@ volatility of the more unstable cryptocurrency market.
 - [x] A permutation test
 - [x] A p-value or other statistic based on a distribution function (Shapiro-Wilk)
 - [x] Analysis of a contingency table
-- [ ] Comparison of analysis by classical methods (chi-square, CLT) and simulation methods
+- [x] Comparison of analysis by classical methods (chi-square, CLT) and simulation methods
 
 #### Required submission uploads
 
@@ -713,7 +745,7 @@ volatility of the more unstable cryptocurrency market.
 - 2. A data set that is so large that it can be used as a population from which samples are taken (over 600 rows)
 - 4. A one-page document that discusses ethical issues raised by conclusions reached from analysis of the data. (see separate document)
 - 5. A graphial display that is different from those in the textbook or in the class scripts. (many!)
-- 6. Appropriate use of R functions for a probability distribution other than binomial, normal, or chi-square
+- 6. Appropriate use of R functions for a probability distribution other than binomial, normal, or chi-square (Cauchy, others attempted)
 - 9. A convincing demonstration of a relationship that might have been statistically significant but that turns out not to be so. (See Correlation Discussion, Permutation Test)
 - 10. Professional-looking software engineering (e.g defining and using your own functions). (many!)
 - 11. Nicely labeled graphics using ggplot, with good use of color, line styles, etc., that tell a convincing story. (many)
@@ -725,7 +757,10 @@ volatility of the more unstable cryptocurrency market.
 ## Future Work
 
 We did not perform a spectral analysis, but this would another interesting mechanism to determine
-if patterns in the data can be modeled. 
+if patterns in the data can be modeled. We ended up using only a few of the other non-cryptocurrency
+metrics as there was already plenty of analysis to do. We would like to explore these techniques
+with the other metrics as well both for cryptocurrency and traditional market insights.
+
 
 
 

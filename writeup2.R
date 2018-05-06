@@ -170,6 +170,37 @@ ggplot(multidf, aes(x=SP500deltaStd)) +
 qqnorm(multidf$SP500deltaStd,main="QQ Plot of S&P 500 Daily Price Changes")
 abline(0,1)
 shapiro.test(multidf$SP500deltaStd)
+# Find a better distribution than Gaussian. 
+# Plot histogram of standardized daily price changes in S&P500, overlaid with equivalent
+# Cauchy distribution.
+ggplot(multidf, aes(x=SP500deltaStd)) +
+  geom_histogram(aes(y=..density..),
+                 binwidth=0.01,colour="purple",
+                 fill="white") +
+  #geom_density(alpha=0.2,fill="#FF6666") +
+  stat_function(
+    fun = function(x,mean,sd,n){
+      n*dcauchy(x=x, location=-0.014, scale=1.1)
+    },
+    args=with(multidf, c(mean=mu_SP500delta, sd=sd_SP500delta, n=length(multidf)))
+  ) +
+  ggtitle("Histogram of S&P 500 Standardized Daily Price Changes\nCauchy Overlay (scale=1.1)") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  xlab("S&P 500 Standardized Daily Price Change")
+
+# Overlay Cauchy
+overlayCauchy = function(v,label,scale){
+  # this will rescale vector v to [0,1]
+  v_norm = (v - min(v)) / (max(v) - min(v))
+  hist(v_norm,main=paste0(label,"\nCauchy Distribution Overlay (scale=",scale,")"),
+       xlab="",breaks=20)
+  xfit = seq(0, 1, length=length(v))
+  yfit = dcauchy(x=xfit, location=mean(v_norm), scale=scale)
+  lines(xfit,yfit,col="red", lwd=2)
+}
+overlayCauchy(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes",0.0015)
+
+
 # From http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
 # Multiple plot function
 #
@@ -221,13 +252,7 @@ p1 = ggplot(multidf, aes(x=BTCdelta)) +
   geom_histogram(aes(y=..density..),
                  binwidth=0.1,colour="black",
                  fill="white") +
-  geom_density(alpha=0.2,fill="#FF6666") +
-  stat_function(
-    fun = function(x,mean,sd,n){
-      n*dnorm(x=x, mean=mean, sd=sd)
-    },
-    args=with(multidf, c(mean=mean(BTCdelta), sd=sd(BTCdelta), n=length(multidf)))
-  )
+  geom_density(alpha=0.2,fill="#FF6666")
 
 p2 = ggplot(multidf, aes(x=ETHdelta)) +
   geom_histogram(aes(y=..density..),
@@ -248,49 +273,32 @@ p4 = ggplot(multidf, aes(x=XRPdelta)) +
   geom_density(alpha=0.2,fill="#FF6666")
 
 multiplot(p1,p2,p3,p4,cols=2)
-# TODO: overlay S&P500 over any cryptocurrency
+par(op)
+overlayCauchy(multidf$BTCdelta,"Distribution of Normalized BTC Daily Price Changes",0.0005)
 
-# TODO: normalize values and overlay Gaussian
 
 # Categorical Variables
 
 # Converting VIX into a categorical
-#TODO
-
 multidf$VIXCLS.idx = multidf$VIXCLS / multidf$VIXCLS[1]
 multidf$VIXCLSdelta = c(0,diff(multidf$VIXCLS.idx))
 multidf$VIXCLSsgn = ifelse(multidf$VIXCLSdelta>=0,1,-1)
 multidf$BTCsgn = ifelse(multidf$BTCdelta>=0,1,-1)
-# TODO how many standard deviations are exceeded
-
-overlayGaussian = function(v,label){
-  mu_v = mean(v)
-  sd_v = sd(v)
-  v_std = (v - mu_v) / sd_v
-  hist(v_std,main=paste("Distribution of Standardized",label))
-  xfit = seq(min(v_std), max(v_std), length=length(v_std))
-  yfit = dnorm(xfit, mean=mu_v, sd = sd_v)
-  lines(xfit,yfit,col="red", lwd=2)
-  qqnorm(v_std,main=paste("QQ Plot of",label))
-  abline(0,1)
-
-}
+# Not used
+# overlayGaussian = function(v,label){
+#   mu_v = mean(v)
+#   sd_v = sd(v)
+#   v_std = (v - mu_v) / sd_v
+#   hist(v_std,main=paste("Distribution of Standardized",label))
+#   xfit = seq(min(v_std), max(v_std), length=length(v_std))
+#   yfit = dnorm(xfit, mean=mu_v, sd = sd_v)
+#   lines(xfit,yfit,col="red", lwd=2)
+#   qqnorm(v_std,main=paste("QQ Plot of",label))
+#   abline(0,1)
+# 
+# }
 #overlayGaussian(multidf$BTCdelta,"BTC Daily Price Changes")
 #overlayGaussian(multidf$SP500delta,"S&P 500 Daily Price Changes")
-
-# Overlay Beta
-overlayBeta = function(v,label){
-  # this will rescale vector v to [0,1]
-  v_norm = (v - min(v)) / (max(v) - min(v))
-  hist(v_norm,main=label)
-  xfit = seq(0, 1, length=length(v))
-  yfit = dbeta(xfit, 1000,600)
-  lines(xfit,yfit,col="red", lwd=2)
-}
-#overlayBeta(multidf$BTCdelta,"Distribution of Normalized BTC Daily Price Changes")
-#overlayBeta(multidf$SP500delta,"Distribution of Normalized S&P 500 Daily Price Changes")
-
-
 
 # Correlation of cryptocurrency prices
 corData = data.frame(Currency=c("BTCETH","BTCXMR","BTCXRP","ETHXMR","ETHXRP","XMRXRP"), 
