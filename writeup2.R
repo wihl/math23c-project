@@ -352,4 +352,37 @@ permTest(standarize(multidf$ETHdelta), standarize(multidf$XMRdelta),"ETH","XMR")
 permTest(standarize(multidf$ETHdelta), standarize(multidf$XRPdelta),"ETH","XRP")
 permTest(standarize(multidf$XRPdelta), standarize(multidf$XMRdelta),"XRP","XMR")
 par(op)
+#Contingency Table
+cntgTableCustom <- function(firstIndex, periods, periodlength, vixrange) {
+  hasVarInc <- numeric(periods)
+  VIXChange <- numeric(periods)
+  for(i in 1:periods) {
+    sIdx <- firstIndex + (periodlength*i)
+    #Get the vix change in the first 3 days of the period
+    VIXChange[i] <- (multidf[sIdx+vixrange,]$VIXCLS - multidf[sIdx,]$VIXCLS) >= 0
+    #Get the variance of the price changes for this month and last month
+    thisMonthVar <- var(multidf$SP500delta[c(sIdx:(sIdx+periodlength))]); 
+    lastMonthVar <- var(multidf$SP500delta[c((sIdx-periodlength):(sIdx-1))]); 
+    hasVarInc[i] <- thisMonthVar >= lastMonthVar; 
+  }
+  table <- table(VIXChange, hasVarInc); table
+  #Used https://rstudio-pubs-static.s3.amazonaws.com/158214_3e5cc0d244f942f2a2dc33fecdf87764.html
+  #For the mosaicplot example
+  mosaicplot( table, col = c("firebrick", "goldenrod1"), cex.axis = 1, sub = "VIX Change", ylab = "Variance Increased", main = paste("VIX Prognostication as of ",multidf$Date[firstIndex]))
+  table
+}
+
+#Start from 2015 October 1st with 6 periods of 30-days and using the change in VIXCLS for first 3 days of the 30-day period
+periods = 6
+periodlength = 30
+firstIndex <- which(multidf$Date==as.Date("2015-10-01"))
+cntgTableCustom(firstIndex, periods, periodlength, 3)
+
+#Do it again with the next 6 month period
+firstIndex <- firstIndex + periods*periodlength
+cntgTableCustom(firstIndex, periods, periodlength, 3)
+
+#Do it again with the next 6 month period
+firstIndex <- firstIndex + periods*periodlength
+cntgTableCustom(firstIndex, periods, periodlength, 3)
 ## 

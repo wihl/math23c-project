@@ -622,7 +622,60 @@ of multiple variables that change over time.
 
 (REQ: a permutation test, "A convincing demonstration of a relationship that might have been statistically significant but that turns out not to be so")
 
+### Gauging VIX Accuracy Using a Contingency Table
 
+The [VIX](http://www.cboe.com/vix) is a measure of constant 30-day expected volatility o fthe US Stock market. In market terms, volatility is precisely equivalent to variance in statistical terms.
+
+VIX is primarily based on a perception of the market and has no ground truth on a tangible 
+asset. 
+
+Using the change in VIX, we wanted to determine if it is indeed a reliable prognosticator of 
+change of variance in the overall market. An increase in VIX should manifest as an increase
+in variance of the S&P500 price changes from one 30 day period to another. In order to 
+empirically validate the value of VIX, we took the change in VIX over a three day period and measured
+the variance of the market for 30 days before and after this three day period. We evaluated this
+at three separate time periods.
+
+```{r, echo=FALSE}
+#Contingency Table
+cntgTableCustom <- function(firstIndex, periods, periodlength, vixrange) {
+  hasVarInc <- numeric(periods)
+  VIXChange <- numeric(periods)
+  for(i in 1:periods) {
+    sIdx <- firstIndex + (periodlength*i)
+    #Get the vix change in the first 3 days of the period
+    VIXChange[i] <- (multidf[sIdx+vixrange,]$VIXCLS - multidf[sIdx,]$VIXCLS) >= 0
+    #Get the variance of the price changes for this month and last month
+    thisMonthVar <- var(multidf$SP500delta[c(sIdx:(sIdx+periodlength))]); 
+    lastMonthVar <- var(multidf$SP500delta[c((sIdx-periodlength):(sIdx-1))]); 
+    hasVarInc[i] <- thisMonthVar >= lastMonthVar; 
+  }
+  table <- table(VIXChange, hasVarInc); table
+  #Used https://rstudio-pubs-static.s3.amazonaws.com/158214_3e5cc0d244f942f2a2dc33fecdf87764.html
+  #For the mosaicplot example
+  mosaicplot( table, col = c("firebrick", "goldenrod1"), cex.axis = 1, sub = "VIX Change", ylab = "Variance Increased", main = paste("VIX Prognostication as of ",multidf$Date[firstIndex]))
+  table
+}
+
+#Start from 2015 October 1st with 6 periods of 30-days and using the change in VIXCLS for first 3 days of the 30-day period
+periods = 6
+periodlength = 30
+firstIndex <- which(multidf$Date==as.Date("2015-10-01"))
+cntgTableCustom(firstIndex, periods, periodlength, 3)
+
+#Do it again with the next 6 month period
+firstIndex <- firstIndex + periods*periodlength
+cntgTableCustom(firstIndex, periods, periodlength, 3)
+
+#Do it again with the next 6 month period
+firstIndex <- firstIndex + periods*periodlength
+cntgTableCustom(firstIndex, periods, periodlength, 3)
+```
+
+Over the three time periods, VIX was not significantly better than random at forecasting 
+change in volatility.  Since VIX was not useful at forecasting volatility of the market
+for which it was designed, we did not attempt to see if it could be further used to forecast
+volatility of the more unstable cryptocurrency market.
 
 ## Summary of Project Requirements
 
@@ -638,13 +691,13 @@ of multiple variables that change over time.
 - [x] A barplot
 - [x] A histogram
 - [x] A probability density graph overlaid on a histogram
-- [ ] A contingency table
+- [x] A contingency table
 
 #### Required Analysis
 
 - [x] A permutation test
 - [x] A p-value or other statistic based on a distribution function (Shapiro-Wilk)
-- [ ] Analysis of a contingency table
+- [x] Analysis of a contingency table
 - [ ] Comparison of analysis by classical methods (chi-square, CLT) and simulation methods
 
 #### Required submission uploads
@@ -661,12 +714,12 @@ of multiple variables that change over time.
 - 4. A one-page document that discusses ethical issues raised by conclusions reached from analysis of the data. (see separate document)
 - 5. A graphial display that is different from those in the textbook or in the class scripts. (many!)
 - 6. Appropriate use of R functions for a probability distribution other than binomial, normal, or chi-square
-- 9. A convincing demonstration of a relationship that might have been statistically significant but that turns out not to be so.
+- 9. A convincing demonstration of a relationship that might have been statistically significant but that turns out not to be so. (See Correlation Discussion, Permutation Test)
 - 10. Professional-looking software engineering (e.g defining and using your own functions). (many!)
 - 11. Nicely labeled graphics using ggplot, with good use of color, line styles, etc., that tell a convincing story. (many)
 - 13. Appropriate use of novel statistics (e.g. trimmed mean, maximum or minimum, skewness, ratios). (Shapiro-Wilk)
-- 14. Use of linear regression.
-- 16. Appropriate use of covariance or correlation.
+- 14. Use of linear regression. (see Correlation Discussion)
+- 16. Appropriate use of covariance or correlation. (See Correlation Discussion)
 - 22. Team consists of exactly two members (otherwise, 1 or 3 is a possibility). (Just the two of us, standing on the shoulders of giants)
 
 ## Future Work
